@@ -1,0 +1,58 @@
+{
+  "0": {
+    "Parameters": {
+      "agent_names": [
+        "Truthful",
+        "Truthful",
+        "Truthful"
+      ],
+      "budget": 500000,
+      "iters": 1,
+      "loglevel": "info",
+      "max_perms": 10,
+      "max_val": 175,
+      "mechanism": "vcg",
+      "min_val": 25,
+      "num_rounds": 3,
+      "seed": 1
+    },
+    "Results": {
+      "Agent Stats": {
+        "Truthful": {
+          "Average spend": 60.72666666666667,
+          "Average utility": 109.91000000000001
+        }
+      },
+      "Average daily revenue": 182.18,
+      "Stddev daily revenue": 0.0
+    }
+  },
+  "1": {
+    "Parameters": {
+      "agent_names": [
+        "Truthful",
+        "Truthful",
+        "Truthful"
+      ],
+      "budget": 500000,
+      "iters": 1,
+      "loglevel": "info",
+      "max_perms": 10,
+      "max_val": 175,
+      "mechanism": "vcg",
+      "min_val": 25,
+      "num_rounds": 3,
+      "seed": 2
+    },
+    "Results": {
+      "Agent Stats": {
+        "Truthful": {
+          "Average spend": 55.74,
+          "Average utility": 9.946666666666667
+        }
+      },
+      "Average daily revenue": 167.22,
+      "Stddev daily revenue": 0.0
+    }
+  }
+}

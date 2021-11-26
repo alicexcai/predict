@@ -1,3 +1,5 @@
+# [ABANDONED] Origianl main document for sim_mvp. Abandoned for ./simulation suite.
+
 import vcg as vcg
 import gsp as gsp
 import lmsr as lmsr

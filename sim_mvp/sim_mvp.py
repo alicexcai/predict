@@ -72,7 +72,7 @@ def UnitCosts(shares, liquidity):
 
 
 
-def main():
+def main(params):
     # demo
 
     print('Starting prediction market...')
