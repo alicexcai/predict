@@ -1,5 +1,11 @@
 # PREDICT
 
+## UPATES
+Latest simulation file to run: [market.py](https://github.com/alicexcai/predict/blob/main/simulation/market.py)
+To Do:
+* design agents
+* implement signals
+
 ## Directory Structure
 
 ```
