@@ -1,7 +1,6 @@
 import copy
 
-# History store bare-bone basic information about the history of a game. More sophisticated queries can be made by agents if desired.
-
+# History stores bare-bone basic information about the history of a game. More sophisticated queries can be made by agents if desired.
 class History:
     
     class RoundHistory:
