@@ -14,18 +14,27 @@ Latest simulation file to run: [market.py](https://github.com/alicexcai/predict/
 ├── LICENSE
 ├── README.md
 ├── archive - a bunch of backups and scrapped code
-├── sim_mvp
-│   └── sim_mvp.py - very basic simulation
-└── simulation
-    ├── assets - images for documentation
+└── doe
     ├── components
     │   ├── __init__.py
     │   ├── agent.py - agent class
     │   ├── history.py - history class
     │   ├── params.py - parameter config class
     │   └── stats.py - stats class
-    ├── docs.md
+    │── doe.py - parameter exploration
     └── market.py - main simulation file
+├── sim_mvp
+│   └── sim_mvp.py - very basic simulation
+└── simulation
+    ├── assets - images for documentation
+    ├── components
+    │   ├── __init__.py
+    │   ├── agent.py
+    │   ├── history.py 
+    │   ├── params.py
+    │   └── stats.py
+    ├── docs.md
+    └── market.py
 ```
 
 ## Features to Implement
