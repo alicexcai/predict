@@ -52,12 +52,13 @@ class Nerd(Agent):
         print(linear_regression_data)
         
         weights = { 'projected': 0.5, 'current': 0.5}
-        def calculate_predicted_probabilities (projected_scores, signal, weights):
+        def calculate_predicted_probabilities (projected_scores, signal, weights): 
             prediction = { outcome : (weights['projected'] * projected_scores[outcome] + weights['current'] * signal.iloc[round_num-1][outcome] / 2) / sum([(weights['projected'] * projected_scores[outcome] + weights['current'] * signal.iloc[round_num-1][outcome] / 2) for outcome in outcomes]) for outcome in outcomes}
+            
             return prediction
         
         belief = calculate_predicted_probabilities(projected_scores, signal, weights)
-
+    
         purchase = {}
         def calculate_shares(belief):
             for outcome in outcomes:

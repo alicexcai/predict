@@ -55,6 +55,11 @@ class Nerd(Agent):
             return prediction
         
         belief = calculate_predicted_probabilities(projected_scores, signal, weights)
+        
+        print("BELIEF PRE", belief)
+        belief = { outcome : (belief[outcome] + 0.01) / (1 + 0.01 * len(outcomes)) for outcome in outcomes }
+        # belief = { outcome : (belief_pre[outcome] + probabilities[outcome]) / 2 for outcome in outcomes }
+        print("BELIEF", belief)
 
         purchase = {}
         def calculate_shares(belief):
