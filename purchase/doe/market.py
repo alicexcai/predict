@@ -103,10 +103,11 @@ def sim(params, meta_params):
         # Log purchased shares determined by agents
         shares[round_num] = { outcome: shares[round_num-1][outcome] for outcome in outcomes }
         for agent in agents_list:
-            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal)
+            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds)
             # implement proportional capping? Burden of checking balance feasibility lies on the agent for now.
             # new_request = { outcome : 0 if sum(list(requested_purchase.values())) == 0 else agent.balance if requested_purchase[outcome] == sum(list(requested_purchase.values())) else requested_purchase[outcome] * agent.balance / sum(list(requested_purchase.values())) for outcome in outcomes }
-            p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
+            # p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
+            p_shares[round_num][agent.id] = requested_purchase
             payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], p_shares[round_num][agent.id])
             agent.balance -= payments[round_num][agent.id]
             for outcome in outcomes:

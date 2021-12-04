@@ -32,12 +32,10 @@ class Nerd(Agent):
         super().__init__(id, name, balance)
         self.type = 'zero_intelligence'
         
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds):
         
         # print("SIGNAL", signal)
         print("PROBABILITIES", probabilities )
-        
-        # linear_regression_data = pd.DataFrame(columns=['team', 'intercept', 'slope', 'confidenece'])
         linear_regression_data = defaultdict()
         projected_scores = defaultdict()
         for outcome in outcomes:
@@ -71,18 +69,22 @@ class Nerd(Agent):
                     purchase[outcome] = 0
             return purchase
         
-        print("BELIEF", belief)
+        # print("BELIEF", belief)
         purchase = calculate_shares(belief)
-        
-        
         print("PRUCAHSE", purchase)
         
-
+        def calculate_weighted_purchase(purchase, round_num):
+            print("NUM ROUNDS - ROUND NUM", num_rounds, round_num)
+            weighted_purchase = { outcome : purchase[outcome] * 1 / (num_rounds + 1 - round_num) for outcome in outcomes }
+            print("WEIGHTED PURCHASE", weighted_purchase)
+            return weighted_purchase
+        
+        final_purchase = calculate_weighted_purchase(purchase, round_num)
+        
         # if round_num == 60:
         #     plt.scatter(X, Y)
         #     plt.plot(X, Y_pred, color='red')
         #     plt.show()
         
-        # purchase = { outcome : random.random() * self.balance for outcome in outcomes }
-        return purchase
+        return final_purchase
     

@@ -21,7 +21,7 @@ class Agent:
         agent_history = { round : history.p_shares[self.id] for round in history.rounds }
         return agent_history
     
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds):
         
         '''
         TO DO:
@@ -39,7 +39,7 @@ class Basic(Agent):
         super().__init__(id, name, balance)
         self.type = 'basic'
 
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds):
         
         # Bid until probabilities = belief
         purchase = {}
@@ -68,7 +68,7 @@ class ZeroInt(Agent):
         super().__init__(id, name, balance)
         self.type = 'zero_intelligence'
         
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds):
         purchase = { outcome : random.random() * self.balance for outcome in outcomes }
         return purchase
     
@@ -78,7 +78,7 @@ class Superfan(Agent):
         self.type = 'superfan'
         self.team = team
         
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds):
         lean_less_r = float(skewnorm.rvs(1000, loc=0, scale = 0.25, size=1))
         lean_more_r = float(skewnorm.rvs(-1000, loc=1, scale = 0.25, size=1))
         lean_less = lean_less_r if lean_less_r >= 0 and lean_less_r <= 1 else 0 if lean_less_r < 0 else 1

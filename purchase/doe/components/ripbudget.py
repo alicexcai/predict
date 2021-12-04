@@ -32,10 +32,25 @@ class Nerd(Agent):
         super().__init__(id, name, balance)
         self.type = 'zero_intelligence'
         
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds):
         
         # print("SIGNAL", signal)
         print("PROBABILITIES", probabilities )
+        
+        def Cost(shares):
+            if mechanism == 'logarithmic':
+                cost = liquidity * math.log(sum([math.exp(shares[outcome] / liquidity) for outcome in outcomes]))
+            elif mechanism == 'quadratic':
+                # is this correct?
+                cost = liquidity * \
+                    sum([(shares[outcome] / liquidity) ** 2 for outcome in outcomes])
+            return cost
+        def CostOfTrans(requested_purchase):
+            before_cost = Cost(shares)
+            new_shares = {outcome: shares[outcome] + requested_purchase[outcome] for outcome in outcomes}
+            after_cost = Cost(new_shares)
+            cost_of_trans = after_cost - before_cost
+            return cost_of_trans
         
         # linear_regression_data = pd.DataFrame(columns=['team', 'intercept', 'slope', 'confidenece'])
         linear_regression_data = defaultdict()
@@ -71,18 +86,45 @@ class Nerd(Agent):
                     purchase[outcome] = 0
             return purchase
         
-        print("BELIEF", belief)
+        # print("BELIEF", belief)
         purchase = calculate_shares(belief)
-        
-        
         print("PRUCAHSE", purchase)
         
+        def calculate_weighted_purchase(purchase, round_num):
+            print("NUM ROUNDS - ROUND NUM", num_rounds, round_num)
+            weighted_purchase = { outcome : purchase[outcome] * 1 / (num_rounds + 1 - round_num) for outcome in outcomes }
+            print("WEIGHTED PURCHASE", weighted_purchase)
+            return weighted_purchase
+        
+        final_purchase = calculate_weighted_purchase(purchase, round_num)
+        
+        # def budget_aware_purchase(weighted_purchase, budget_cap):
+        #     print("BUDGET CAP", budget_cap)
+        #     solution = fsolve(CostOfTrans, budget_cap)
+        #     print("SOLUTION", solution)
+        #     return solution
+            
+            # budget_aware_purchase = {}
+            # for outcome in outcomes:
+            #     if weighted_purchase[outcome] > 0:
+            
+            # # implement proportional capping? Burden of checking balance feasibility lies on the agent for now.
+            # new_request = { outcome : 0 if sum(list(requested_purchase.values())) == 0 else agent.balance if requested_purchase[outcome] == sum(list(requested_purchase.values())) else requested_purchase[outcome] * agent.balance / sum(list(requested_purchase.values())) for outcome in outcomes }
+            # p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
 
+        # budget_cap = self.balance / (num_rounds + 1 - round_num)
+        # # if sum(list(weighted_purchase.values())) > self.balance:
+        # #     budget_aware_purchase(weighted_purchase, budget_cap)
+        # if CostOfTrans(shares[round_num-1], weighted_purchase) > self.balance:
+        #     final_purchase = budget_aware_purchase(weighted_purchase, budget_cap) 
+        # else:
+        #     final_purchase = weighted_purchase
+    
         # if round_num == 60:
         #     plt.scatter(X, Y)
         #     plt.plot(X, Y_pred, color='red')
         #     plt.show()
         
         # purchase = { outcome : random.random() * self.balance for outcome in outcomes }
-        return purchase
+        return final_purchase
     
