@@ -8,6 +8,7 @@ from components.history import History
 from components.stats import Stats
 from components.params import MetaParams, Params
 from components.agent import Agent, ZeroInt, Basic, Superfan
+from components.newagents import Nerd
 
 def sim(params, meta_params):
     

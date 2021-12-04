@@ -10,12 +10,12 @@ import sqlite3
 
 # Static for single experiment but combinatorial runs - pass in params_tested, params_const, metaparams
 params_tested = build.full_fact(
-    {'liquidity': [100.0, 200.0],
-    'num_rounds': [60.0, 50.0]}
+    {'liquidity': [100.0],
+    'num_rounds': [60.0]}
 )
 params_const = {
     'outcomes': ['Harvard', 'Yale'],
-    'agents_list': ['Basic(1, \'first\', 1000)', 'Basic(2, \'second\', 1000)', 'Basic(3, \'third\', 1000)'],
+    'agents_list': ['Basic(1, \'first\', 1000)', 'Nerd(2, \'second\', 1000)', 'Nerd(3, \'third\', 1000)'],
     'mechanism': 'logarithmic',
     'i_shares': {'Harvard': 0.0, 'Yale': 0.0 },
                 }
