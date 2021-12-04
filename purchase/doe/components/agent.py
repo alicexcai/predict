@@ -22,6 +22,11 @@ class Agent:
         return agent_history
     
     def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+        
+        '''
+        TO DO:
+        Check if the agent has enough money to purchase shares
+        '''
         purchase = { outcome : 1 for outcome in outcomes }
         return purchase
     
@@ -35,11 +40,6 @@ class Basic(Agent):
         self.type = 'basic'
 
     def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
-
-        '''
-        TO DO:
-        write code for purchase strategy
-        '''
         
         # Bid until probabilities = belief
         purchase = {}
@@ -58,6 +58,7 @@ class Basic(Agent):
         # Adjust how agents calculate belief
         belief = { outcome : (signal.iloc[round_num-1][outcome] / sum([signal.iloc[round_num-1][outcome] for outcome in outcomes])) for outcome in outcomes }
         purchase = calculate_shares(belief)
+        print("REQUESTED", purchase)
         
         return purchase
     
@@ -86,11 +87,11 @@ class Superfan(Agent):
         purchase[self.team] = lean_more * self.balance
         return purchase
 
-class Dummy(Agent):
-    def __init__(self, id, name, balance):
-        super().__init__(id, name, balance)
-        self.type = 'dummy'
+# class Dummy(Agent):
+#     def __init__(self, id, name, balance):
+#         super().__init__(id, name, balance)
+#         self.type = 'dummy'
         
-    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
-        purchase = { outcome : random.random() * self.balance for outcome in outcomes }
-        return purchase
+#     def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+#         purchase = { outcome : random.random() * self.balance for outcome in outcomes }
+#         return purchase

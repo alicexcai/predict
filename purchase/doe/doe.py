@@ -3,7 +3,7 @@ import itertools
 import pandas as pd
 import market as tosim
 from components.params import MetaParams, Params
-from components.agent import Agent, Basic, ZeroInt, Superfan, Dummy
+from components.agent import Agent, Basic, ZeroInt, Superfan
 # from gui import *
 from doepy import build
 import sqlite3
@@ -11,11 +11,11 @@ import sqlite3
 # Static for single experiment but combinatorial runs - pass in params_tested, params_const, metaparams
 params_tested = build.full_fact(
     {'liquidity': [100.0, 200.0],
-    'num_rounds': [60.0, 70.0]}
+    'num_rounds': [60.0, 50.0]}
 )
 params_const = {
     'outcomes': ['Harvard', 'Yale'],
-    'agents_list': [Agent(1, 'first', 1000), Agent(id=2, name='second', balance=1000), Agent(3, 'third', 1000)],
+    'agents_list': ['Basic(1, \'first\', 1000)', 'Basic(2, \'second\', 1000)', 'Basic(3, \'third\', 1000)'],
     'mechanism': 'logarithmic',
     'i_shares': {'Harvard': 0.0, 'Yale': 0.0 },
                 }

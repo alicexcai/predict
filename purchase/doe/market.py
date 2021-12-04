@@ -7,7 +7,7 @@ import numpy as np
 from components.history import History
 from components.stats import Stats
 from components.params import MetaParams, Params
-from components.agent import Agent
+from components.agent import Agent, ZeroInt, Basic, Superfan
 
 def sim(params, meta_params):
     
@@ -25,7 +25,7 @@ def sim(params, meta_params):
     num_rounds = params.num_rounds
     
     # variable
-    agents_list = params.agents_list
+    agents_list = [eval(agent) for agent in params.agents_list]
     shares = results_full['shares']
     shares[0] = params.i_shares  
     payments = results_full['payments']
@@ -66,30 +66,21 @@ def sim(params, meta_params):
     
     # do we need a function for this?
     def process_data(data, num_rounds):
-        data_expanded  = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining', 'Harvard', 'Yale'])
-        data_processed  = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining', 'Harvard', 'Yale'])
         time_interval = 60.0 / num_rounds
-        # time_interval = num_rounds / 60000.0
-        harvard = 0
-        yale = 0
-        
-        for row, timestamp in data.iterrows():
-            timestamp_rounded = round(timestamp['time_remaining'] / time_interval) * time_interval
-            data_expanded.iloc[int(timestamp_rounded)] = data.iloc[row]
-            data_expanded.at[int(timestamp_rounded), 'time_remaining'] = timestamp_rounded
-        data_processed = data_expanded.iloc[::-1]
-        
-        for row, data in data_expanded.iterrows():
-            harvard = data_expanded.at[row, 'Harvard'] if data_expanded.at[row, 'Harvard'] > 0 else harvard
-            yale = data_expanded.at[row, 'Yale'] if data_expanded.at[row, 'Yale'] > 0 else yale
-            data_processed.iloc[row] = [row * time_interval, harvard, yale]
-        
-        data_processed = data_processed.reindex(index=data_processed.index[::-1])
-        data_processed = data_processed.reset_index().T.tail(3).T
-        
-        # print("DATA", data_processed)
-        
-        return data_processed
+        data_test = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining'] + [outcome for outcome in outcomes])
+        for row, row_data in data.iterrows():
+            # timestamp = round(row_data['time_remaining'] / time_interval) * time_interval
+            index = round(row_data['time_remaining'] / time_interval)
+            data_test.iloc[index] = row_data
+        data_test = data_test.reindex(index=data_test.index[::-1])
+        data_test = data_test.reset_index().T.tail(3).T
+        for row, row_data in data_test.iterrows():
+            for outcome in outcomes:
+                if row > 0:
+                    if data_test.iloc[row][outcome] < data_test.iloc[row-1][outcome]:
+                        data_test.iloc[row][outcome] = data_test.iloc[row-1][outcome]
+            data_test.iloc[row]['time_remaining'] = 60 - row * time_interval
+        return data_test
     
     data_processed = process_data(data, num_rounds)
 
@@ -112,8 +103,10 @@ def sim(params, meta_params):
         shares[round_num] = { outcome: shares[round_num-1][outcome] for outcome in outcomes }
         for agent in agents_list:
             requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal)
-            p_shares[round_num][agent.id] = requested_purchase if all( i > 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else {outcome: 0 for outcome in outcomes}
-            payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], requested_purchase)
+            # implement proportional capping? Burden of checking balance feasibility lies on the agent for now.
+            # new_request = { outcome : 0 if sum(list(requested_purchase.values())) == 0 else agent.balance if requested_purchase[outcome] == sum(list(requested_purchase.values())) else requested_purchase[outcome] * agent.balance / sum(list(requested_purchase.values())) for outcome in outcomes }
+            p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
+            payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], p_shares[round_num][agent.id])
             agent.balance -= payments[round_num][agent.id]
             for outcome in outcomes:
                 shares[round_num][outcome] += p_shares[round_num][agent.id][outcome]
@@ -133,11 +126,12 @@ def sim(params, meta_params):
                 agents_list[agent].balance += 1000
         '''
         
-        # print("\n\t=== Round %d ===" % round_num)
-        # print("\tPurchased shares: %s" % p_shares[round_num])
-        # print("\tUpdated shares: %s" % shares[round_num])
-        # print("\tPayments made: %s" % payments[round_num])
-        # print("\tUpdated probabilities: %s" % probabilities[round_num])
+        print("\n\t=== Round %d ===" % round_num)
+        print("\tPurchased shares: %s" % p_shares[round_num])
+        print("\tUpdated shares: %s" % shares[round_num])
+        print("\tPayments made: %s" % payments[round_num])
+        print("\tUpdated probabilities: %s" % probabilities[round_num])
+        
         # print("\tUpdated cost: %s\n" % cost[round_num])
         
     # print("\n\t=== Results ===\n\n", results_full)
