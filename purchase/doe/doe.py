@@ -10,12 +10,12 @@ import sqlite3
 
 # Static for single experiment but combinatorial runs - pass in params_tested, params_const, metaparams
 params_tested = build.full_fact(
-    {'liquidity': [100.0],
-    'num_rounds': [60.0]}
+    {'liquidity': [100.0, 200.0],
+    'num_rounds': [60.0, 70.0]}
 )
 params_const = {
-    'outcomes': {'Harvard': 0.0, 'Yale': 0.0},
-    'agents_list': [Dummy(1, 'first', 1000), Basic(id=2, name='second', balance=1000), Basic(3, 'third', 1000)],
+    'outcomes': ['Harvard', 'Yale'],
+    'agents_list': [Agent(1, 'first', 1000), Agent(id=2, name='second', balance=1000), Agent(3, 'third', 1000)],
     'mechanism': 'logarithmic',
     'i_shares': {'Harvard': 0.0, 'Yale': 0.0 },
                 }
@@ -63,7 +63,7 @@ def doe(params_tested, params_const, meta_params):
         # return experiment_data
     
     # print("\n\n============= Experiment Data =============\n\n", experiment_data)
-    # experiment_data.to_csv('Experiment.csv')  
+    experiment_data.to_csv('Experiment.csv')  
     
 
 doe(params_tested, params_const, meta_params)

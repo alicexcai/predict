@@ -69,6 +69,7 @@ def sim(params, meta_params):
         data_expanded  = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining', 'Harvard', 'Yale'])
         data_processed  = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining', 'Harvard', 'Yale'])
         time_interval = 60.0 / num_rounds
+        # time_interval = num_rounds / 60000.0
         harvard = 0
         yale = 0
         
@@ -78,13 +79,15 @@ def sim(params, meta_params):
             data_expanded.at[int(timestamp_rounded), 'time_remaining'] = timestamp_rounded
         data_processed = data_expanded.iloc[::-1]
         
-        for row, timestamp in data_expanded.iterrows():
+        for row, data in data_expanded.iterrows():
             harvard = data_expanded.at[row, 'Harvard'] if data_expanded.at[row, 'Harvard'] > 0 else harvard
             yale = data_expanded.at[row, 'Yale'] if data_expanded.at[row, 'Yale'] > 0 else yale
-            data_processed.iloc[row] = [row, harvard, yale]
+            data_processed.iloc[row] = [row * time_interval, harvard, yale]
         
         data_processed = data_processed.reindex(index=data_processed.index[::-1])
         data_processed = data_processed.reset_index().T.tail(3).T
+        
+        # print("DATA", data_processed)
         
         return data_processed
     
@@ -99,60 +102,21 @@ def sim(params, meta_params):
 
     # round is an arbitrary alias for a unit of time, agents can choose to trade in different round intervals, simulating trade frequency
     def run_round(shares, round_num):
-        
-        # example signal
-        # signal = { outcome : random.random() for outcome in outcomes }
-        
+
         signal = data_processed.iloc[0:round_num]
-        # print('SIGNAL', signal)
 
         p_shares[round_num]= {}
         payments[round_num]= {}
         
         # Log purchased shares determined by agents
+        shares[round_num] = { outcome: shares[round_num-1][outcome] for outcome in outcomes }
         for agent in agents_list:
-            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal)         
+            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal)
             p_shares[round_num][agent.id] = requested_purchase if all( i > 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else {outcome: 0 for outcome in outcomes}
-            # print("COST OF TRANS", CostOfTrans(shares[round_num-1], requested_purchase))
-            # if all(i > 0 for i in list(requested_purchase.values())):
-            #     # print("PASSED NEG")
-            #     if CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance:
-            #         # print("==", CostOfTrans(shares[round_num-1], requested_purchase))
-                    
-            #         # print("SHARES-1", shares[round_num-1])
-            #         # print("REQP", requested_purchase)
-            #         # print("INNER PASSED")
-            #         # print("COST OF TRANS", CostOfTrans(shares[round_num-1], requested_purchase))
-            #         p_shares[round_num][agent.id] = requested_purchase 
-            #     else:
-            #         # print("\nINNER FAILED")
-            #         p_shares[round_num][agent.id] = {outcome: 0 for outcome in outcomes}
-            # else:
-            #     # print("FAILED NEG")
-            #     p_shares[round_num][agent.id] = {outcome: 0 for outcome in outcomes}
-            
-            # print("ERROR", p_shares[round_num][agent.id])
-            # update agent balance, calculate payments based on mechanism
-            # print("PSHARES", p_shares[round_num][agent.id])
-            
-            
-            # ERROR! when you buy in bundles, how do you tell what payments you make for each outcome?
-            # cost_of_trans_dict = {}
-            # for outcome in outcomes:
-            #     separated_shares = {out: 0.0 for out in outcomes}
-            #     separated_shares[outcome] = shares[round_num-1][outcome]
-                
-            #     cost_of_trans_dict[outcome] = CostOfTrans(separated_shares, p_shares[round_num][agent.id])
-            
             payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], requested_purchase)
-            # print("PAYEMTNS", payments[round_num][agent.id])
-            # print("SUBTRACT", sum(list(payments[round_num].values())))
-            # print("BEFORE BALANCE", agent.balance)
-            # agent.balance -= sum(list(payments[round_num].values()))
             agent.balance -= payments[round_num][agent.id]
-            # print("AFTER BALANCE", agent.balance)
-            shares[round_num] = { outcome: shares[round_num-1][outcome] + p_shares[round_num][agent.id][outcome] for outcome in outcomes }
-        # new cost and probabilities post-purchase
+            for outcome in outcomes:
+                shares[round_num][outcome] += p_shares[round_num][agent.id][outcome]
         cost[round_num] = Cost(shares[round_num])
         probabilities[round_num] = Probabilities(shares[round_num])
 
@@ -169,12 +133,14 @@ def sim(params, meta_params):
                 agents_list[agent].balance += 1000
         '''
         
-        print("\n\t=== Round %d ===" % round_num)
+        # print("\n\t=== Round %d ===" % round_num)
         # print("\tPurchased shares: %s" % p_shares[round_num])
         # print("\tUpdated shares: %s" % shares[round_num])
         # print("\tPayments made: %s" % payments[round_num])
         # print("\tUpdated probabilities: %s" % probabilities[round_num])
         # print("\tUpdated cost: %s\n" % cost[round_num])
+        
+    # print("\n\t=== Results ===\n\n", results_full)
 
     # RUN ROUNDS
     for round_num in range(1, int(params.num_rounds) + 1):

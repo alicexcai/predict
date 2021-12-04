@@ -20,11 +20,10 @@ class Agent:
         # agent purchase history stored in a dictionary of dictionaries { round : { outcome : shares, ... }, ... } for each agent
         agent_history = { round : history.p_shares[self.id] for round in history.rounds }
         return agent_history
-
-    # def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, cost, signal):
-    #     purchase = { outcome : 100 for outcome in outcomes }
-    #     print("PURCHASE", purchase)
-    #     return purchase
+    
+    def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
+        purchase = { outcome : 1 for outcome in outcomes }
+        return purchase
     
     def __repr__(self):
         return "{class_name}({attributes})".format(class_name = type(self).__name__, attributes = self.__dict__)
@@ -59,9 +58,6 @@ class Basic(Agent):
         # Adjust how agents calculate belief
         belief = { outcome : (signal.iloc[round_num-1][outcome] / sum([signal.iloc[round_num-1][outcome] for outcome in outcomes])) for outcome in outcomes }
         purchase = calculate_shares(belief)
-        print("BELIEF", belief)
-        print("PURCHASE", purchase)
-        # print("BALANCE", self.balance)
         
         return purchase
     
@@ -73,9 +69,6 @@ class ZeroInt(Agent):
         
     def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
         purchase = { outcome : random.random() * self.balance for outcome in outcomes }
-        # print("ROUDNNUM", round_num)
-        # print("BALANCE", self.balance)
-        # print("REQUESTED PURCHASE", purchase)
         return purchase
     
 class Superfan(Agent):
@@ -89,21 +82,9 @@ class Superfan(Agent):
         lean_more_r = float(skewnorm.rvs(-1000, loc=1, scale = 0.25, size=1))
         lean_less = lean_less_r if lean_less_r >= 0 and lean_less_r <= 1 else 0 if lean_less_r < 0 else 1
         lean_more = lean_more_r if lean_more_r >= 0 and lean_more_r <= 1 else 0 if lean_more_r < 0 else 1
-        # print("LL, LM", lean_more, lean_less)
-        # print("BALANCE", self.balance)
-        # purchase = { outcome : lean_less * self.balance if lean_less * self.balance > 0 else 0 for outcome in outcomes }
         purchase = { outcome : lean_less * self.balance for outcome in outcomes }
-        # print("INITAL", purchase)
-        # purchase[self.team] = lean_more * self.balance if lean_more * self.balance > 0 else self.balance
         purchase[self.team] = lean_more * self.balance
-        # print("UPDATED", purchase)
-        # r = skewnorm.rvs(a, size=1)
         return purchase
-
-# [id, name, balance] = [1, 'hi', 100]
-# test = ZeroInt(id, name, balance)
-# print(test.__repr__())
-
 
 class Dummy(Agent):
     def __init__(self, id, name, balance):
@@ -112,5 +93,4 @@ class Dummy(Agent):
         
     def purchase(self, mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal):
         purchase = { outcome : random.random() * self.balance for outcome in outcomes }
-        print("PURCAHSE", purchase)
         return purchase
