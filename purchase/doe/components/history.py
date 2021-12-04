@@ -28,15 +28,16 @@ class History:
         self.p_shares = p_shares
         self.payments = payments
         
+    # unused - OMIT?
     def get_data(self, cost, shares, probabilities, p_shares, payments):
-        history_data = pd.DataFrame(columns=['round', 'cost', 'shares', 'probabilities', 'p_shares', 'payments'])
-        
-        return {'cost': cost, 
+        history_data_dict = {'cost': cost, 
                 'shares': shares, 
                 'probabilities': probabilities,
                 'p_shares': p_shares,
                 'payments': payments
                 }
+        history_data = pd.DataFramefrom_dict(history_data_dict)
+        return history_data
         
         
 

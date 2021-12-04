@@ -2,6 +2,7 @@ from collections import defaultdict
 import math
 import random
 import pandas as pd
+import numpy as np
 
 from components.history import History
 from components.stats import Stats
@@ -11,17 +12,6 @@ from components.agent import Agent
 def sim(params, meta_params):
     
     data = pd.read_csv('/Users/alicecai/Desktop/csecon/predict/predict/purchase/doe/data/data.csv')  
-    
-    # do we need a function for this?
-    def process_data(data):
-        data_processed = data
-        time_interval = 60.0 / num_rounds
-        for timestamp in data['time_remaining']:
-            round(float(timestamp) / time_interval) * time_interval
-        
-        return data_processed
-    
-    process_data(data)
     
     # initiate
     round_num = 0
@@ -73,6 +63,32 @@ def sim(params, meta_params):
     probabilities[0] = Probabilities(shares[0])
     cost = results_full['cost']
     cost[0] = Cost(shares[0])
+    
+    # do we need a function for this?
+    def process_data(data, num_rounds):
+        data_expanded  = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining', 'Harvard', 'Yale'])
+        data_processed  = pd.DataFrame(np.zeros((int(num_rounds), 3)), columns=['time_remaining', 'Harvard', 'Yale'])
+        time_interval = 60.0 / num_rounds
+        harvard = 0
+        yale = 0
+        
+        for row, timestamp in data.iterrows():
+            timestamp_rounded = round(timestamp['time_remaining'] / time_interval) * time_interval
+            data_expanded.iloc[int(timestamp_rounded)] = data.iloc[row]
+            data_expanded.at[int(timestamp_rounded), 'time_remaining'] = timestamp_rounded
+        data_processed = data_expanded.iloc[::-1]
+        
+        for row, timestamp in data_expanded.iterrows():
+            harvard = data_expanded.at[row, 'Harvard'] if data_expanded.at[row, 'Harvard'] > 0 else harvard
+            yale = data_expanded.at[row, 'Yale'] if data_expanded.at[row, 'Yale'] > 0 else yale
+            data_processed.iloc[row] = [row, harvard, yale]
+        
+        data_processed = data_processed.reindex(index=data_processed.index[::-1])
+        data_processed = data_processed.reset_index().T.tail(3).T
+        
+        return data_processed
+    
+    data_processed = process_data(data, num_rounds)
 
     # Introduce new agent mid-simulation - is this necessary?
     def init_agent(agents_list, newagent_name, newagent_balance):
@@ -127,7 +143,7 @@ def sim(params, meta_params):
         '''
         
         # print("\n\t=== Round %d ===" % round_num)
-        # print("\tPurchased shares: %s" % p_shares[round_num])
+        print("\tPurchased shares: %s" % p_shares[round_num])
         # print("\tUpdated shares: %s" % shares[round_num])
         # print("\tPayments made: %s" % payments[round_num])
         # print("\tUpdated probabilities: %s" % probabilities[round_num])
