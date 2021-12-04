@@ -29,7 +29,7 @@ def sim(params, meta_params):
     shares = results_full['shares']
     shares[0] = params.i_shares  
     payments = results_full['payments']
-    payments[0] = {agent.id: {outcome: 0.0 for outcome in outcomes} for agent in agents_list}
+    payments[0] = {agent.id: 0 for agent in agents_list}
     p_shares = results_full['p_shares'] 
     p_shares[0] = {agent.id: {outcome: 0.0 for outcome in outcomes} for agent in agents_list}
     
@@ -104,7 +104,6 @@ def sim(params, meta_params):
         # signal = { outcome : random.random() for outcome in outcomes }
         
         signal = data_processed.iloc[0:round_num]
-        
         # print('SIGNAL', signal)
 
         p_shares[round_num]= {}
@@ -112,18 +111,46 @@ def sim(params, meta_params):
         
         # Log purchased shares determined by agents
         for agent in agents_list:
-            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, cost, signal)
-            p_shares[round_num][agent.id] = requested_purchase if sum(requested_purchase.values()) <= agent.balance else {outcome: 0 for outcome in outcomes}
+            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal)         
+            p_shares[round_num][agent.id] = requested_purchase if all( i > 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else {outcome: 0 for outcome in outcomes}
+            # print("COST OF TRANS", CostOfTrans(shares[round_num-1], requested_purchase))
+            # if all(i > 0 for i in list(requested_purchase.values())):
+            #     # print("PASSED NEG")
+            #     if CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance:
+            #         # print("==", CostOfTrans(shares[round_num-1], requested_purchase))
+                    
+            #         # print("SHARES-1", shares[round_num-1])
+            #         # print("REQP", requested_purchase)
+            #         # print("INNER PASSED")
+            #         # print("COST OF TRANS", CostOfTrans(shares[round_num-1], requested_purchase))
+            #         p_shares[round_num][agent.id] = requested_purchase 
+            #     else:
+            #         # print("\nINNER FAILED")
+            #         p_shares[round_num][agent.id] = {outcome: 0 for outcome in outcomes}
+            # else:
+            #     # print("FAILED NEG")
+            #     p_shares[round_num][agent.id] = {outcome: 0 for outcome in outcomes}
+            
+            # print("ERROR", p_shares[round_num][agent.id])
             # update agent balance, calculate payments based on mechanism
+            # print("PSHARES", p_shares[round_num][agent.id])
             
-            cost_of_trans_dict = {}
-            for outcome in outcomes:
-                separated_shares = {out: 0.0 for out in outcomes}
-                separated_shares[outcome] = shares[round_num-1][outcome]
-                cost_of_trans_dict[outcome] = CostOfTrans(separated_shares, p_shares[round_num][agent.id])
             
-            payments[round_num][agent.id] = cost_of_trans_dict
-            agent.balance -= sum(list(payments[round_num][agent.id].values()))
+            # ERROR! when you buy in bundles, how do you tell what payments you make for each outcome?
+            # cost_of_trans_dict = {}
+            # for outcome in outcomes:
+            #     separated_shares = {out: 0.0 for out in outcomes}
+            #     separated_shares[outcome] = shares[round_num-1][outcome]
+                
+            #     cost_of_trans_dict[outcome] = CostOfTrans(separated_shares, p_shares[round_num][agent.id])
+            
+            payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], requested_purchase)
+            # print("PAYEMTNS", payments[round_num][agent.id])
+            # print("SUBTRACT", sum(list(payments[round_num].values())))
+            # print("BEFORE BALANCE", agent.balance)
+            # agent.balance -= sum(list(payments[round_num].values()))
+            agent.balance -= payments[round_num][agent.id]
+            # print("AFTER BALANCE", agent.balance)
             shares[round_num] = { outcome: shares[round_num-1][outcome] + p_shares[round_num][agent.id][outcome] for outcome in outcomes }
         # new cost and probabilities post-purchase
         cost[round_num] = Cost(shares[round_num])
@@ -142,8 +169,8 @@ def sim(params, meta_params):
                 agents_list[agent].balance += 1000
         '''
         
-        # print("\n\t=== Round %d ===" % round_num)
-        print("\tPurchased shares: %s" % p_shares[round_num])
+        print("\n\t=== Round %d ===" % round_num)
+        # print("\tPurchased shares: %s" % p_shares[round_num])
         # print("\tUpdated shares: %s" % shares[round_num])
         # print("\tPayments made: %s" % payments[round_num])
         # print("\tUpdated probabilities: %s" % probabilities[round_num])
