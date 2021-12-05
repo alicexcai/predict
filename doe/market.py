@@ -40,7 +40,6 @@ def sim(params, meta_params):
         return cost
 
     def Probabilities(shares):
-
         if mechanism == 'logarithmic':
             probabilities = {outcome: math.exp(shares[outcome] / liquidity) / sum(
                 [math.exp(shares[outcome] / liquidity) for outcome in outcomes]) for outcome in outcomes}
@@ -72,7 +71,6 @@ def sim(params, meta_params):
     # round is an arbitrary alias for a unit of time, agents can choose to trade in different round intervals, simulating trade frequency
     def run_round(shares, round_num):
         
-       
         # example signal
         signal = { outcome : random.random() for outcome in outcomes }
         # print('SIGNAL', signal)
@@ -112,12 +110,12 @@ def sim(params, meta_params):
                 agents_list[agent].balance += 1000
         '''
         
-        # print("\n\t=== Round %d ===" % round_num)
-        # print("\tPurchased shares: %s" % p_shares[round_num])
-        # print("\tUpdated shares: %s" % shares[round_num])
-        # print("\tPayments made: %s" % payments[round_num])
-        # print("\tUpdated probabilities: %s" % probabilities[round_num])
-        # print("\tUpdated cost: %s\n" % cost[round_num])
+        print("\n\t=== Round %d ===" % round_num)
+        print("\tPurchased shares: %s" % p_shares[round_num])
+        print("\tUpdated shares: %s" % shares[round_num])
+        print("\tPayments made: %s" % payments[round_num])
+        print("\tUpdated probabilities: %s" % probabilities[round_num])
+        print("\tUpdated cost: %s\n" % cost[round_num])
 
     # RUN ROUNDS
     for round_num in range(1, int(params.num_rounds) + 1):
