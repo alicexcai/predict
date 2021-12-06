@@ -2,16 +2,12 @@ streamlit
 pandas
 numpy
 matplotlib
-matplotlib.pyplot
 plotly
-plotly.express
 
 requests
 os
 gwosc
-gwosc.api
-gwpy.timeseries 
-gwosc.locate 
+
 
 copy
 base64
@@ -22,6 +18,6 @@ math
 scipy
 collections
 
-sklearn.linear_model
+sklearn
 sqlite3
 itertools
