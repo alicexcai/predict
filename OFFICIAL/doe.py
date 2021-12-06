@@ -15,7 +15,7 @@ cursor = db.cursor()
 
 # Static for single experiment but combinatorial runs - pass in params_tested, params_const, metaparams
 params_tested = build.full_fact(
-    {'liquidity': [100.0],
+    {'liquidity': [100.0, 200.0, 300.0],
     'num_rounds': [60.0]}
 )
 params_const = {
