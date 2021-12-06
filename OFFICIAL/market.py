@@ -226,6 +226,6 @@ def sim(params, meta_params):
     results_full_unpkd = pd.concat([results_full_unpkd.drop('payments', axis=1), payments_unpkd], axis=1)
     
     results_primary = results_full_unpkd.iloc[-1][meta_params.results_primary]
-    agent_payoffs = { agent.id : agent.balance + total_p_shares[num_rounds][agent.id][outcome] if outcome == winner else agent.balance for outcome in outcomes for agent in agents_list }
+    agent_payoffs = { agent.id : agent.balance + total_p_shares[num_rounds][agent.id][outcome] if outcome == winner else 0 for outcome in outcomes for agent in agents_list }
     
     return results_full_unpkd, results_primary, agent_payoffs
