@@ -5,13 +5,14 @@ import pandas as pd
 import numpy as np
 
 from components.history import History
-# from components.stats import Stats
+from components.stats import Stats
 from components.params import MetaParams, Params
-from components.agent import Agent, ZeroInt, Basic, Superfan, Nerd, Nerd2
+from components.agent import Agent, ZeroInt, Basic, Superfan
+from components.newagents import Nerd, Nerd2
 
 def sim(params, meta_params):
     
-    data = pd.read_csv('./data/data.csv')  
+    data = pd.read_csv('/Users/alicecai/Desktop/csecon/predict/predict/purchase/doe/data/data.csv')  
     
     # initiate
     round_num = 0
@@ -102,11 +103,10 @@ def sim(params, meta_params):
         # Log purchased shares determined by agents
         shares[round_num] = { outcome: shares[round_num-1][outcome] for outcome in outcomes }
         for agent in agents_list:
-            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds)
+            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal)
             # implement proportional capping? Burden of checking balance feasibility lies on the agent for now.
             # new_request = { outcome : 0 if sum(list(requested_purchase.values())) == 0 else agent.balance if requested_purchase[outcome] == sum(list(requested_purchase.values())) else requested_purchase[outcome] * agent.balance / sum(list(requested_purchase.values())) for outcome in outcomes }
-            # p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
-            p_shares[round_num][agent.id] = requested_purchase
+            p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
             payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], p_shares[round_num][agent.id])
             agent.balance -= payments[round_num][agent.id]
             for outcome in outcomes:
@@ -132,7 +132,8 @@ def sim(params, meta_params):
         print("\tUpdated shares: %s" % shares[round_num])
         print("\tPayments made: %s" % payments[round_num])
         print("\tUpdated probabilities: %s" % probabilities[round_num])
-        print("\tUpdated cost: %s\n" % cost[round_num])
+        
+        # print("\tUpdated cost: %s\n" % cost[round_num])
         
     # print("\n\t=== Results ===\n\n", results_full)
 
@@ -148,35 +149,6 @@ def sim(params, meta_params):
     # print("\tProbabilities History: %s" % probabilities)
     # print("\tCost History: %s\n" % cost)
     
-     # UNPACKING DATATYPES =====================================================================================================================
+    results_primary = results_full.iloc[-1][meta_params.results_primary]
     
-    results_full_unpkd = results_full.copy()
-    
-    shares_unpkd = results_full_unpkd["shares"].apply(pd.Series)
-    shares_unpkd = shares_unpkd.add_prefix('shares_')
-    results_full_unpkd = pd.concat([results_full_unpkd.drop('shares', axis=1), shares_unpkd], axis=1)  
-    
-    probabilities_unpkd = results_full_unpkd["probabilities"].apply(pd.Series)
-    probabilities_unpkd = probabilities_unpkd.add_prefix('probability_')
-    results_full_unpkd = pd.concat([results_full_unpkd.drop('probabilities', axis=1), probabilities_unpkd], axis=1)
-    
-    pshares_unpkd = results_full_unpkd["p_shares"].apply(pd.Series)
-    pshares_unpkd = pshares_unpkd.add_prefix('purchase_agent')
-
-    pshares_unpkd_unpkd = pshares_unpkd.copy()
-    for col in pshares_unpkd.columns.values:
-        newcol = pshares_unpkd[col].apply(pd.Series)
-        newcol = newcol.add_prefix('%s_'%col)
-        pshares_unpkd_unpkd = pd.concat([pshares_unpkd_unpkd, newcol], axis=1)
-    pshares_unpkd_unpkd = pshares_unpkd_unpkd.drop(pshares_unpkd.columns.values, axis=1)
-    
-    results_full_unpkd = pd.concat([results_full_unpkd.drop('p_shares', axis=1), pshares_unpkd_unpkd], axis=1)
-
-    payments_unpkd = results_full_unpkd["payments"].apply(pd.Series)
-    payments_unpkd = payments_unpkd.add_prefix('payment_agent')
-    
-    results_full_unpkd = pd.concat([results_full_unpkd.drop('payments', axis=1), payments_unpkd], axis=1)
-    
-    results_primary = results_full_unpkd.iloc[-1][meta_params.results_primary]
-    
-    return results_full_unpkd, results_primary
+    return results_full, results_primary

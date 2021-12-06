@@ -20,7 +20,7 @@ params_tested = build.full_fact(
 )
 params_const = {
     'outcomes': ['Harvard', 'Yale'],
-    'agents_list': ['Nerd(1, \'first\', 1000)', 'Nerd(2, \'second\', 1000)', 'Nerd(3, \'third\', 1000)'],
+    'agents_list': ['Nerd2(1, \'first\', 1000)', 'Nerd2(2, \'second\', 1000)', 'Nerd2(3, \'third\', 1000)'],
     'mechanism': 'logarithmic',
     'i_shares': {'Harvard': 0.0, 'Yale': 0.0 },
                 }
