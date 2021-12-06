@@ -2,7 +2,7 @@ import csv
 list = []
 
 
-with open('game2.csv') as csv_file:
+with open('game7.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
     quarter = 1
@@ -28,12 +28,12 @@ with open('game2.csv') as csv_file:
             a = time.split(":")
             # print(a)
             # print(quarter)
-            print(f'\t{60*((4-quarter)*15 + (float(a[0]) + float(a[1])/60))} seconds left when score is {row[4]} vs {row[5]}.')
+            print(f'\t{((4-quarter)*15 + (float(a[0]) + float(a[1])/60))} seconds left when score is {row[4]} vs {row[5]}.')
             line_count += 1
             list.append([((4-quarter)*15 + (float(a[0]) + float(a[1])/60)), int(row[4]), int(row[5])])
 
 
-    with open("out2.csv", "w", newline="") as f:
+    with open("cleangame7.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(list)
 
