@@ -180,7 +180,7 @@ class Superfan(Agent):
         
         return final_purchase, belief
 
-class Nerd(Agent):
+class Nerd1(Agent):
     def __init__(self, id, name, balance):
         super().__init__(id, name, balance)
         self.type = 'zero_intelligence'

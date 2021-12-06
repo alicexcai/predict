@@ -20,7 +20,7 @@ params_tested = build.full_fact(
 )
 params_const = {
     'outcomes': ['Harvard', 'Yale'],
-    'agents_list': ['Nerd(1, \'first\', 1000)', 'Nerd(2, \'second\', 1000)', 'Superfan(3, \'third\', 1000, \'Harvard\')'],
+    'agents_list': ['Nerd1(1, \'first\', 1000)', 'Nerd2(2, \'second\', 1000)'],
     'mechanism': 'logarithmic',
     'i_shares': {'Harvard': 100.0, 'Yale': 100.0 },
                 }
@@ -33,7 +33,7 @@ meta_params = MetaParams(
 
 def doe(params_tested, params_const, meta_params):
     
-    experiment_data = pd.DataFrame(columns=meta_params.params_const + meta_params.params_tested + meta_params.results_primary + ['results_full'])
+    experiment_data = pd.DataFrame(columns=meta_params.params_const + meta_params.params_tested + meta_params.results_primary + ['agent_payoffs'])
     
     params = list()
     for i in range(len(params_tested)):
@@ -48,7 +48,7 @@ def doe(params_tested, params_const, meta_params):
         params = Params(params_all)
         
         # write results primary to sqlite database
-        results_full, results_primary = tosim.sim(params, meta_params)
+        results_full, results_primary, agent_payoffs = tosim.sim(params, meta_params)
         
         # print("\n\n============= Results Full =============\n\n", results_full)
         
@@ -60,6 +60,8 @@ def doe(params_tested, params_const, meta_params):
             
         for param_const in meta_params.params_const:
             experiment_data.at[i, param_const] = params_const[param_const]
+            
+        experiment_data.at[i, 'agent_payoffs'] = agent_payoffs
             
         results_full_str = results_full.copy()
         for col in list(results_full.columns.values):

@@ -7,11 +7,13 @@ import numpy as np
 from components.history import History
 # from components.stats import Stats
 from components.params import MetaParams, Params
-from components.agent import Agent, ZeroInt, Basic, Superfan, Nerd, Nerd2, Nerd3, Nerd4, Nerd5, Nerd6
+from components.agent import Agent, ZeroInt, Basic, Superfan, Nerd1, Nerd2, Nerd3, Nerd4, Nerd5, Nerd6
 
 def sim(params, meta_params):
     
-    data = pd.read_csv('./data/out2.csv')  
+    data = pd.read_csv('./data/cleangame5.csv')  
+    # winner = data['winner'].values
+    # winner = data.iloc[num_rounds].idxmax(axis=1)
     
     # initiate
     round_num = 0
@@ -23,6 +25,8 @@ def sim(params, meta_params):
     mechanism = params.mechanism 
     liquidity = params.liquidity
     num_rounds = params.num_rounds
+    
+    winner = data.iloc[-1].idxmax()
     
     # variable
     agents_list = [eval(agent) for agent in params.agents_list]
@@ -117,6 +121,7 @@ def sim(params, meta_params):
             agent_beliefs[round_num][agent.id] = belief
             
             payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], p_shares[round_num][agent.id])
+            
             agent.balance -= payments[round_num][agent.id]
             for outcome in outcomes:
                 shares[round_num][outcome] += p_shares[round_num][agent.id][outcome]
@@ -221,5 +226,6 @@ def sim(params, meta_params):
     results_full_unpkd = pd.concat([results_full_unpkd.drop('payments', axis=1), payments_unpkd], axis=1)
     
     results_primary = results_full_unpkd.iloc[-1][meta_params.results_primary]
+    agent_payoffs = { agent.id : agent.balance + total_p_shares[num_rounds][agent.id][outcome] if outcome == winner else agent.balance for outcome in outcomes for agent in agents_list }
     
-    return results_full_unpkd, results_primary
+    return results_full_unpkd, results_primary, agent_payoffs
