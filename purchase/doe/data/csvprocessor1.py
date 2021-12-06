@@ -2,7 +2,7 @@ import csv
 list = []
 
 
-with open('game2.csv') as csv_file:
+with open('game10.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
     quarter = 1
@@ -33,7 +33,7 @@ with open('game2.csv') as csv_file:
             list.append([60*((4-quarter)*15 + (float(a[0]) + float(a[1])/60)), int(row[4]), int(row[5])])
 
 
-    with open("out2.csv", "w", newline="") as f:
+    with open("cleaned_game10.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(list)
 
