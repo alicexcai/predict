@@ -1,0 +1,2 @@
+,outcomes,agents_list,mechanism,i_shares,liquidity,num_rounds,cost,probability_Harvard,probability_Yale,shares_Harvard,shares_Yale,agent_payoffs
+0,"['Harvard', 'Yale']","[""Nerd4(2, 'second', 1000)"", ""Nerd4(2, 'second', 1000)"", ""Nerd4(2, 'second', 1000)""]",logarithmic,"{'Harvard': 100.0, 'Yale': 100.0}",100.0,60.0,278.3450568253095,0.49059653005852594,0.509403469941474,207.1317348217757,210.89356636138322,{2: 0}

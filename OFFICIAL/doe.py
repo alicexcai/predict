@@ -15,12 +15,12 @@ cursor = db.cursor()
 
 # Static for single experiment but combinatorial runs - pass in params_tested, params_const, metaparams
 params_tested = build.full_fact(
-    {'liquidity': [100.0, 200.0, 300.0],
+    {'liquidity': [100.0],
     'num_rounds': [60.0]}
 )
 params_const = {
     'outcomes': ['Harvard', 'Yale'],
-    'agents_list': ['Nerd1(1, \'first\', 1000)', 'Nerd4(2, \'second\', 1000)'],
+    'agents_list': ['Nerd4(2, \'second\', 1000)', 'Nerd4(2, \'second\', 1000)', 'Nerd4(2, \'second\', 1000)','Nerd4(2, \'second\', 1000)', 'Nerd4(2, \'second\', 1000)', 'Nerd4(2, \'second\', 1000)','Nerd4(2, \'second\', 1000)', 'Nerd4(2, \'second\', 1000)', 'Nerd4(2, \'second\', 1000)','Nerd4(2, \'second\', 1000)'],
 
     # 'agents_list': ['Nerd3(1, \'first\', 1000)', 'Nerd4(2, \'second\', 1000)'],
     # 'agents_list': ['Nerd1(1, \'first\', 1000)', 'Nerd2(2, \'second\', 1000)', 'Superfan(3, \'third\', 1000, \'Harvard\')'],
