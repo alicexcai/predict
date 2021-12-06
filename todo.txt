@@ -1,0 +1,11 @@
+-get sum of purchased shares for winning outcome for each agent
+
+-column of agent beliefs (aka probabilities, not just pshares)
+-get final probabilities report from agents
+
+
+-statistics on "convergence" of probabilities (inter-reliability - std, truth-reliability - std from real)
+
+
+Aggregate statistics:
+- 

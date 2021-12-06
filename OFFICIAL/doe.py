@@ -15,20 +15,20 @@ cursor = db.cursor()
 
 # Static for single experiment but combinatorial runs - pass in params_tested, params_const, metaparams
 params_tested = build.full_fact(
-    {'liquidity': [100.0, 200.0],
-    'num_rounds': [60.0, 120.0]}
+    {'liquidity': [100.0],
+    'num_rounds': [60.0]}
 )
 params_const = {
     'outcomes': ['Harvard', 'Yale'],
-    'agents_list': ['Nerd2(1, \'first\', 1000)', 'Nerd2(2, \'second\', 1000)', 'Nerd2(3, \'third\', 1000)'],
+    'agents_list': ['Nerd(1, \'first\', 1000)', 'Nerd(2, \'second\', 1000)', 'Superfan(3, \'third\', 1000, \'Harvard\')'],
     'mechanism': 'logarithmic',
-    'i_shares': {'Harvard': 0.0, 'Yale': 0.0 },
+    'i_shares': {'Harvard': 100.0, 'Yale': 100.0 },
                 }
 meta_params = MetaParams(
     params_tested=['liquidity', 'num_rounds'],
     params_const=['outcomes', 'agents_list', 'mechanism', 'i_shares'],
     results_primary=['cost', 'probability_Harvard', 'probability_Yale', 'shares_Harvard', 'shares_Yale'],
-    results_full=['cost', 'probabilities', 'shares', 'p_shares', 'payments']
+    results_full=['cost', 'probabilities', 'shares', 'p_shares', 'total_p_shares', 'agent_beliefs', 'payments']
 )
 
 def doe(params_tested, params_const, meta_params):
@@ -65,7 +65,11 @@ def doe(params_tested, params_const, meta_params):
         for col in list(results_full.columns.values):
             results_full_str[col] = results_full[col].astype(str) if type(results_full[col]) != int or str else results_full[col]
             
-        results_full.to_csv('Run%s_data.csv'%run_id)     
+        params_tested_str = ''.join(['l', str(int(params_all['liquidity'])), '_r', str(int(params_all['num_rounds']))])
+        print("STR\n\n\n\n\n\n", params_tested_str)
+        
+        # print([str(params_tested[param]) for param in params_tested])
+        results_full.to_csv('%sRun%s_data_%s.csv'%(experiment_name,run_id, params_tested_str))    
         results_full_str.to_sql('run_data', con=db, if_exists='replace')
         
         cursor.execute("""DROP TABLE IF EXISTS run%s_data"""%run_id)

@@ -7,11 +7,11 @@ import numpy as np
 from components.history import History
 # from components.stats import Stats
 from components.params import MetaParams, Params
-from components.agent import Agent, ZeroInt, Basic, Superfan, Nerd, Nerd2
+from components.agent import Agent, ZeroInt, Basic, Superfan, Nerd, Nerd2, Nerd3, Nerd4, Nerd5, Nerd6
 
 def sim(params, meta_params):
     
-    data = pd.read_csv('./data/data.csv')  
+    data = pd.read_csv('./data/out2.csv')  
     
     # initiate
     round_num = 0
@@ -32,6 +32,10 @@ def sim(params, meta_params):
     payments[0] = {agent.id: 0 for agent in agents_list}
     p_shares = results_full['p_shares'] 
     p_shares[0] = {agent.id: {outcome: 0.0 for outcome in outcomes} for agent in agents_list}
+    total_p_shares = results_full['total_p_shares'] 
+    total_p_shares[0] = {agent.id: {outcome: 0.0 for outcome in outcomes} for agent in agents_list}
+    agent_beliefs = results_full['agent_beliefs'] 
+    agent_beliefs[0] = {agent.id: {outcome: 0.0 for outcome in outcomes} for agent in agents_list}
     
     def Cost(shares):
         if mechanism == 'logarithmic':
@@ -97,16 +101,21 @@ def sim(params, meta_params):
         signal = data_processed.iloc[0:round_num]
 
         p_shares[round_num]= {}
+        total_p_shares[round_num] = {}
+        agent_beliefs[round_num] = {}
         payments[round_num]= {}
         
         # Log purchased shares determined by agents
         shares[round_num] = { outcome: shares[round_num-1][outcome] for outcome in outcomes }
         for agent in agents_list:
-            requested_purchase = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds)
+            [requested_purchase, belief] = agent.purchase(mechanism, liquidity, outcomes, history, round_num, shares, probabilities, cost, signal, num_rounds)
             # implement proportional capping? Burden of checking balance feasibility lies on the agent for now.
             # new_request = { outcome : 0 if sum(list(requested_purchase.values())) == 0 else agent.balance if requested_purchase[outcome] == sum(list(requested_purchase.values())) else requested_purchase[outcome] * agent.balance / sum(list(requested_purchase.values())) for outcome in outcomes }
             # p_shares[round_num][agent.id] = requested_purchase if all( i >= 0 for i in list(requested_purchase.values())) and CostOfTrans(shares[round_num-1], requested_purchase) <= agent.balance else { outcome : 0.0 for outcome in outcomes}
             p_shares[round_num][agent.id] = requested_purchase
+            total_p_shares[round_num][agent.id] = { outcome: sum(p_shares[r][agent.id][outcome] for r in range(round_num)) for outcome in outcomes }
+            agent_beliefs[round_num][agent.id] = belief
+            
             payments[round_num][agent.id] = CostOfTrans(shares[round_num-1], p_shares[round_num][agent.id])
             agent.balance -= payments[round_num][agent.id]
             for outcome in outcomes:
@@ -129,6 +138,8 @@ def sim(params, meta_params):
         
         print("\n\t=== Round %d ===" % round_num)
         print("\tPurchased shares: %s" % p_shares[round_num])
+        print("\tTotal purchased shares: %s" % total_p_shares[round_num])
+        print("\tAgent beliefs: %s" % agent_beliefs[round_num])
         print("\tUpdated shares: %s" % shares[round_num])
         print("\tPayments made: %s" % payments[round_num])
         print("\tUpdated probabilities: %s" % probabilities[round_num])
@@ -171,6 +182,38 @@ def sim(params, meta_params):
     pshares_unpkd_unpkd = pshares_unpkd_unpkd.drop(pshares_unpkd.columns.values, axis=1)
     
     results_full_unpkd = pd.concat([results_full_unpkd.drop('p_shares', axis=1), pshares_unpkd_unpkd], axis=1)
+    
+    
+    ################################################################################################################################################
+    total_pshares_unpkd = results_full_unpkd["total_p_shares"].apply(pd.Series)
+    total_pshares_unpkd = total_pshares_unpkd.add_prefix('totalpurchase_agent')
+
+    total_pshares_unpkd_unpkd = total_pshares_unpkd.copy()
+    for col in total_pshares_unpkd.columns.values:
+        newcol = total_pshares_unpkd[col].apply(pd.Series)
+        newcol = newcol.add_prefix('%s_'%col)
+        total_pshares_unpkd_unpkd = pd.concat([total_pshares_unpkd_unpkd, newcol], axis=1)
+    total_pshares_unpkd_unpkd = total_pshares_unpkd_unpkd.drop(total_pshares_unpkd.columns.values, axis=1)
+    
+    results_full_unpkd = pd.concat([results_full_unpkd.drop('total_p_shares', axis=1), total_pshares_unpkd_unpkd], axis=1)
+    
+    ################################################################################################################################################
+    
+    agent_beliefs_unpkd = results_full_unpkd["agent_beliefs"].apply(pd.Series)
+    agent_beliefs_unpkd = agent_beliefs_unpkd.add_prefix('belief_agent')
+
+    agent_beliefs_unpkd_unpkd = agent_beliefs_unpkd.copy()
+    for col in agent_beliefs_unpkd.columns.values:
+        newcol = agent_beliefs_unpkd[col].apply(pd.Series)
+        newcol = newcol.add_prefix('%s_'%col)
+        agent_beliefs_unpkd_unpkd = pd.concat([agent_beliefs_unpkd_unpkd, newcol], axis=1)
+    agent_beliefs_unpkd_unpkd = agent_beliefs_unpkd_unpkd.drop(agent_beliefs_unpkd.columns.values, axis=1)
+    
+    results_full_unpkd = pd.concat([results_full_unpkd.drop('agent_beliefs', axis=1), agent_beliefs_unpkd_unpkd], axis=1)
+    
+    ################################################################################################################################################
+    
+    
 
     payments_unpkd = results_full_unpkd["payments"].apply(pd.Series)
     payments_unpkd = payments_unpkd.add_prefix('payment_agent')
