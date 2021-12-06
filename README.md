@@ -1,11 +1,4 @@
-# PREDICT
-
-## UPATES
-Latest simulation file to run: [market.py](https://github.com/alicexcai/predict/blob/main/simulation/market.py)
-
-#### To Do:
-- [ ] design agents
-- [ ] implement signals
+# Prediction Market
 
 ## Directory Structure
 
@@ -28,12 +21,63 @@ Latest simulation file to run: [market.py](https://github.com/alicexcai/predict/
     └── market.py - main simulation file
 ```
 
-## Features to Implement
-* agent bidding methodologies 
-* signals input
-* pypet DOE suite
-  * stats
-* Dash visualization
+## Features
+
+## Agent Types
+
+Four different base agent types were implemented, with two different time-weighting purchase strategies for each agent type.
+
+Time-Weighting Strategies
+    * "Steady Better" - calculates purchase based on linear time weighting - multiply purchases by round number / total number of rounds
+    * "Wait 'n See" - calculates purchase based on an inverse time weighting - multiply purchases by 1 / number of rounds remaining
+
+Base agent types:
+* Myopic Agent
+    * Calculates belief based on current score signal - outcome score / total score sum
+    * Calculates purchase based on different time-weighting strategies
+        * an inverse time weighting - multiply purchases by 1 / number of rounds remaining
+* SuperSmart Agent
+    * Runs linear regression on history of scores to project predicted end score for both teams
+    * Calculates belief based on weighted average of current and predicted end scores
+    * Calculates purchase based on different time-weighting strategies
+* Superfan Agent
+    * Biased toward a particular team, multiplies belief in their chosen team by a weight randomly selected from a skewed normal distribution
+    * Calculates purchase based on different time-weighting strategies
+* ZeroInt Agent
+    * Calculates belief based on random selection from ~[0,1] for outcomes
+    * Calculates purchase based on different time-weighting strategies
+
+## Implementation Details
+
+Market Methods:
+* Cost - calculates the current cost in the market
+* Probabilities - calculates the current outcome probabilities based on the current market shares
+* CostOfTrans - calculates the cost of making a particular transaction, comprising { outcome : requested # of shares, ... }
+* process_data - transforms timestamps-score pairs into round-based data signals for agents
+* run_round - runs one round of the prediction market, sending score signals to agents, collecting and processing requested purchases, updating balances, updating cost, probabilities, and other data
+
+Agent Attributes:
+* self.id - an id by which agents are indexed
+* self.name - an alias for the agent
+* self.balance - available budget to trade using
+* self.team (for superfans) - team of choice
+
+Agent Methods:
+* __init__ - instantiate an agent
+* get_history - get agent purchase history
+* purchase - calculate purchase based on incoming signal
+* __repr__ - print attributes of agent
+
+## Design of Experiment
+A design of experiment abstraction layer was implemented to automate parameter space exploration for different simulation parameters. This script works with **any function**, and can be used by others in the future to quickly conduct parameter exploration and manage outputted data. The doe.py script works as follows:
+* Users input a list of parameters, including the parameter space they want to explore as well as the parameters they want to hold constant for an experiment
+* For functions with more complex outputs such as simulations, users input which outputs they consider to be their primary results and full results
+* The script creates a design of experiment based on the desired DOE model (full factorial, fractional factorial, etc.)
+* The script creates a sqlite database with a main experiment table, where primary results and corresponding parameters are stored.
+* The script outputs full run data (for each set of tested parameters) in a separate table autolabeled with parameter details.
+
+## External Libraries and Dependencies
+External libraries and frameworks were used to help implement and analyze the simulation.
 
 ## Parameters
 
@@ -43,10 +87,3 @@ For small markets where there is likely to be less trading activity, a smaller b
 ## References
 1. [Microsoft - Introduction to Prediction Markets](https://docs.microsoft.com/en-us/archive/msdn-magazine/2016/june/test-run-introduction-to-prediction-markets#the-four-key-prediction-market-equations)
 2. [Cultivate Labs - How does the Logarithmic Market Scoring Rule (LMSR) work?](https://www.cultivatelabs.com/prediction-markets-guide/how-does-logarithmic-market-scoring-rule-lmsr-work)
-
-----------
-## Brain Dump
-
-* Should we use simpy? live signals of changing scores
-* cellular automata scoring rule / model for prediction markets
-* AI generated videos to do human subject experimentation? randomly generated simple shape / info movements?
