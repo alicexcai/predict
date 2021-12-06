@@ -28,8 +28,8 @@
 Four different base agent types were implemented, with two different time-weighting purchase strategies for each agent type.
 
 Time-Weighting Strategies
-    * "Steady Better" - calculates purchase based on linear time weighting - multiply purchases by round number / total number of rounds
-    * "Wait 'n See" - calculates purchase based on an inverse time weighting - multiply purchases by 1 / number of rounds remaining
+* "Steady Better" - calculates purchase based on linear time weighting - multiply purchases by round number / total number of rounds
+* "Wait 'n See" - calculates purchase based on an inverse time weighting - multiply purchases by 1 / number of rounds remaining
 
 Base agent types:
 * Myopic Agent
