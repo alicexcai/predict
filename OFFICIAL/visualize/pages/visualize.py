@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 import sqlite3
 
-# ^ imports from testpage
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -36,36 +34,13 @@ def app():
     
     with st.sidebar.expander("See data in current directory"):
         st.write(local_files_list)
-    
-    # st.sidebar.markdown("## Select Datasets")
-    # selected_dataset = st.sidebar.multiselect('Select Datasets', local_files_list)
-    # uploaded_file = st.sidebar.file_uploader("Upload a file")
+
     uploaded_file = st.sidebar.file_uploader("Upload data", type = ['csv', 'xlsx', 'sqlite', 'db'])
-    # if uploaded_file is not None:
-    #     if uploaded_file.name.endswith('.sqlite'):
-    #         dataframe = pd.DataFrame(pd.read_sql_query('SELECT * FROM data', uploaded_file))
-    #         # conn = sqlite3.connect(uploaded_file)
-    #         # data = pd.read_sql_query("SELECT * FROM table_name", conn)
-    #     try:
-    #         dataframe = pd.read_csv(uploaded_file)
-    #     except Exception as e:
-    #         print(e)
-    #         dataframe = pd.read_excel(uploaded_file)
     st.sidebar.markdown("## Select Visualization Parameters")
 
     num_graphs = st.sidebar.slider('Number of graphs', 1, 10, 1)  # min, max, default
 
-    # Title the app
     st.subheader('Data Visualizer')
-    # st.markdown("""Visualize your data by changing the parameters in the sidebar.""")
-    
-    # dataframe = pd.DataFrame(np.random.default_rng(seed=42).random((3, 3)), columns = ['Column_A','Column_B','Column_C'])
-    # if uploaded_file is not None:
-    #     dataframe = pd.read_csv(uploaded_file)
-    #     st.subheader("Raw Data")
-    #     st.write(dataframe)
-
-    # parameter_list = dataframe.columns.tolist()
 
     def graph_data(graph_key):
         
@@ -120,10 +95,6 @@ def app():
 
     for i in range(num_graphs):
         graph_data(i)
-
-
-
-
 
     with st.expander("See notes"):
 

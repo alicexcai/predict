@@ -12,8 +12,6 @@ from components.agent import Agent, ZeroInt, Basic, Superfan, Nerd1, Nerd2, Nerd
 def sim(params, meta_params):
     
     data = pd.read_csv('./data/data.csv')  
-    # winner = data['winner'].values
-    # winner = data.iloc[num_rounds].idxmax(axis=1)
     
     # initiate
     round_num = 0
