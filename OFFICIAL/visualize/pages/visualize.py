@@ -44,7 +44,7 @@ def app():
 
     def graph_data(graph_key):
         
-        selected_dataset = st.selectbox('Select Datasets', local_files_list + [uploaded_file.name] if uploaded_file is not None else local_files_list, index=0)
+        selected_dataset = st.selectbox('Select Datasets', local_files_list + [uploaded_file.name] if uploaded_file is not None else local_files_list, index=0, key=graph_key)
         if uploaded_file is not None and selected_dataset == uploaded_file.name:
             dataframe = pd.read_csv(uploaded_file)
         else:
@@ -64,14 +64,14 @@ def app():
             graph_ydata = col2.multiselect('Y Data', parameter_list, key=graph_key)
 
             # st.subheader("Datatype: ", dataframe[graph1_ydata].dtype)
-            regression = st.checkbox('Regression', value=True)
+            regression = st.checkbox('Regression', value=True, key=graph_key)
             if regression == True:
                 regression_type = st.selectbox('Regression Type', 
                     ['Ordinary Least Squares', 
                     'Locally WEighted Scatterplot Smoothing',
                     'Moving Averages: Rolling',
                     'Moving Averages: Exponential',
-                    'Moving Averages: Expanding'])
+                    'Moving Averages: Expanding'], key=graph_key)
         
         # Types of regressions: https://plotly.com/python/linear-fits/   
         regression_options = {
